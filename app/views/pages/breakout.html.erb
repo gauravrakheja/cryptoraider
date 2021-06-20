@@ -1,0 +1,50 @@
+<h1>
+  Predict Breakout
+</h1>
+<%= form_tag(breakout_path, method: :get) do %>
+  <div>
+    <%= label_tag :wallet %>
+    <%= select_tag :wallet_id, options_from_collection_for_select(Wallet.all, 'id', 'currency', params[:wallet_id]) %>
+  </div>
+  <br/>
+  <div>
+    <%= label_tag :start_time %>
+    <%= datetime_field_tag :start_time, params[:start_time] %>
+  </div>
+  <br/>
+  <div>
+    <%= label_tag :end_time %>
+    <%= datetime_field_tag :end_time, params[:end_time] %>
+  </div>
+  <%= submit_tag :search %>
+<% end %>
+<% if @data.present? %>
+  <h2>Stats</h2>
+  <p>
+    <b>Starting Price</b> <%= @candle_collection.starting_price %><br/>
+    <b>Ending Price</b> <%= @candle_collection.ending_price %><br/>
+    <b>Difference</b> <%= @candle_collection.difference %> %<br/>
+  </p>
+  <p>
+    <b>
+      Recent Changes
+    </b><br/>
+    <% @candle_collection.candle_pairs.each do |candle_pair| %>
+      <% unless candle_pair.change.zero? %>
+        <b>Changed</b>
+        <span class=<%= candle_pair.change.positive? ? "text-success" : "text-danger" %>>
+          <%= candle_pair.change %> %
+        </span>
+        <b>between</b> <%= candle_pair.start_time %> and <%= candle_pair.end_time %>
+        <b>Closed at: </b><%= candle_pair.closing_price %><br/>
+      <% end %>
+    <% end %>
+    <span class=<%= @candle_collection.should_buy? ? "text-success" : "text-danger" %>>
+      <%= @candle_collection.should_buy? ? "YES BUY IT" : "NO DON'T BUY IT" %><br/>
+    </span>
+  </p>
+  <h2>Trend</h2>
+  <%= line_chart(@candle_collection.chart_data,
+                 precision: 5,
+                 min: @candle_collection.minimum_price, discrete: true) %>
+<% end %>

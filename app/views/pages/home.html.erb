@@ -1,0 +1,6 @@
+<% Wallet.includes(:candle_dumps).find_each do |wallet| %>
+  <%= "Stats for #{wallet.currency}" %>
+  <%= line_chart(CandleCollection.new(wallet.candle_dumps).chart_data,
+                 precision: 5,
+                 min: CandleCollection.new(wallet.candle_dumps).minimum_price)%>
+<% end %>
